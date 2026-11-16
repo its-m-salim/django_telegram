@@ -10,6 +10,20 @@
 <body>
     <img src="{{request.user.avatar.url}}" alt="" width="200">
     <h1>Добро пожаловать! {{request.user.username}}</h1>
+
+    {% for chat in chats %}
+    <div style="display: flex; width: 900px; margin: 0 auto; background-color: gray; color: white; padding: 20px 10px;" class="chat">
+        <img src="{{chat.user1.avatar.url}}" alt="" width="40" height="40">
+        <p>{{chat.user1.first_name}}</p>
+
+    </div>
+    {% empty %}
+    <h2>no chats yet</h2>
+    <h2>Самое время начать разговор </h2>
+    <a href="/users">users  </a>
+
+    {% endfor %}
+    <a href="/users">users</a>
     <a href="/logout">quit</a>
 </body>
 </html>

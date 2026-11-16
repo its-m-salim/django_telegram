@@ -9,8 +9,9 @@
     <h1>Registration</h1>
     <form action="" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="text" name="username">
-        <input type="password" name="password">
+        <input type="text" name="username" required>
+        <input type="password" name="password" required>
+        <input type="text" name="first_name" placeholder="first_name" required>
         <input type="file" name="avatar" id="">
         <button type="submit">Register</button>
     </form>

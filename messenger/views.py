@@ -1,12 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from .models import User
-
+from .models import *
+from django.db.models import Q
 
 @login_required
 def home_page(request):
-    return render(request, 'home.html')
+    chats = Chat.objects.filter(
+        
+        Q(user1 = request.user) | Q(user1 = request.user)
+    
+    )
+    
+    return render(request, 'home.html', {"chats": chats})
 
 
 @login_required
@@ -24,7 +30,8 @@ def registration(request):
         User.objects.create_user(
             username = data['username'],
             password = data['password'],
-            avatar = request.FILES.get("avatar")
+            avatar = request.FILES.get("avatar"),
+            first_name = data['first_name']
         )
 
         return redirect("login")
@@ -52,3 +59,12 @@ def login_user(request):
 
 
 
+@login_required
+def profile(request):
+    return render(request, "profile.html")
+
+
+@login_required
+def get_users(request):
+    users = User.objects.exclude(username = request.user.username)
+    return render(request, "users.html", {"users": users})
