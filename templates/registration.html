@@ -1,21 +1,31 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="{% static 'registration.css' %}">
 </head>
-<body>
-    <h1>Registration</h1>
-    <form action="" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="text" name="username" required>
-        <input type="password" name="password" required>
-        <input type="text" name="first_name" placeholder="first_name" required>
-        <input type="file" name="avatar" id="">
-        <button type="submit">Register</button>
-    </form>
-    <p>Already have an account? <a href="/login">Sign in here</a></p>
+<body class="registration-page">
+    <div class="registration-box">
+        <div class="avatar avatar-big avatar-preview" style="background-color: {{ avatar_color }}"></div>
 
+        <form class="registration-form" action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="avatar_color" value="{{ avatar_color }}">
+
+            <label class="avatar-label" for="avatar">Фото профиля (необязательно)</label>
+            <input class="avatar-input" type="file" name="avatar" id="avatar" accept="image/*">
+
+            <input class="form-input" type="text" name="username" placeholder="Имя пользователя" required>
+            <input class="form-input" type="text" name="first_name" placeholder="Имя" required>
+            <input class="form-input" type="password" name="password" placeholder="Пароль" required>
+
+            <button class="form-button" type="submit">Зарегистрироваться</button>
+        </form>
+
+        <p class="registration-text">Уже есть аккаунт? <a class="registration-link" href="/login">Войти</a></p>
+    </div>
 </body>
 </html>

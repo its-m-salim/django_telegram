@@ -1,0 +1,173 @@
+/* ===== Общие стили: цвета, сброс, аватарки ===== */
+
+:root {
+    --bg: #0a0f1c;          /* фон страницы (почти чёрный с синим) */
+    --surface: #101829;     /* карточки, шапка */
+    --surface-2: #162038;   /* поля ввода, вложенные блоки */
+    --border: #1d2a47;      /* тонкие линии */
+    --accent: #4c8dff;      /* главный синий цвет */
+    --accent-hover: #6aa0ff;
+    --text: #e8eefc;        /* основной текст */
+    --muted: #8593b0;       /* второстепенный текст */
+    --danger: #ff6b7a;      /* ошибки */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.4;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ===== Аватарка (подключается через avatar.html) ===== */
+
+/* Главное: круг. border-radius 50% + одинаковые ширина и высота */
+.avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;           /* чтобы круг не сплющивался в flex-контейнере */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    user-select: none;
+}
+
+.avatar-small {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+}
+
+.avatar-big {
+    width: 112px;
+    height: 112px;
+    font-size: 46px;
+}
+
+/* Фото растягивается на весь круг и обрезается по краям */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Удалённый аккаунт */
+.avatar-deleted {
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+/* Пользователям с включённой опцией "меньше анимации" отключаем её */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ===== Страница профиля ===== */
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+    color: var(--accent);
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent-hover);
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.profile-card {
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 36px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-align: center;
+    animation: appear 0.4s ease;
+}
+
+/* Большая аватарка по центру с тонким синим кольцом */
+.profile-card .avatar {
+    margin: 0 auto 18px;
+    box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--accent);
+}
+
+.profile-name {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.profile-username {
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+.profile-bio {
+    margin-top: 28px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: 14px;
+    text-align: left;
+}
+
+.profile-label {
+    color: var(--accent);
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.profile-bio-text {
+    white-space: pre-wrap;    /* сохраняем переносы строк из текста */
+    word-break: break-word;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-card {
+        margin: 20px 12px;
+    }
+}

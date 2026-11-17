@@ -1,0 +1,156 @@
+/* ===== Общие стили: цвета, сброс, аватарки ===== */
+
+:root {
+    --bg: #0a0f1c;          /* фон страницы (почти чёрный с синим) */
+    --surface: #101829;     /* карточки, шапка */
+    --surface-2: #162038;   /* поля ввода, вложенные блоки */
+    --border: #1d2a47;      /* тонкие линии */
+    --accent: #4c8dff;      /* главный синий цвет */
+    --accent-hover: #6aa0ff;
+    --text: #e8eefc;        /* основной текст */
+    --muted: #8593b0;       /* второстепенный текст */
+    --danger: #ff6b7a;      /* ошибки */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.4;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ===== Аватарка (подключается через avatar.html) ===== */
+
+/* Главное: круг. border-radius 50% + одинаковые ширина и высота */
+.avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;           /* чтобы круг не сплющивался в flex-контейнере */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    user-select: none;
+}
+
+.avatar-small {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+}
+
+.avatar-big {
+    width: 112px;
+    height: 112px;
+    font-size: 46px;
+}
+
+/* Фото растягивается на весь круг и обрезается по краям */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Удалённый аккаунт */
+.avatar-deleted {
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+/* Пользователям с включённой опцией "меньше анимации" отключаем её */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ===== Страница "Новый чат": список пользователей ===== */
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+    color: var(--accent);
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent-hover);
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Список по центру, как на главной */
+.user-list {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    transition: background 0.2s;
+}
+
+.user-item:hover {
+    background: var(--surface);
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;             /* чтобы длинное имя не ломало вёрстку */
+}
+
+.user-name {
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-username {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 2px;
+}
+
+/* Когда других пользователей нет */
+.empty-text {
+    text-align: center;
+    color: var(--muted);
+    padding: 90px 20px;
+}

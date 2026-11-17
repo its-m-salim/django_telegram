@@ -1,13 +1,189 @@
-body {
+/* ===== Общие стили: цвета, сброс, аватарки ===== */
+
+:root {
+    --bg: #0a0f1c;          /* фон страницы (почти чёрный с синим) */
+    --surface: #101829;     /* карточки, шапка */
+    --surface-2: #162038;   /* поля ввода, вложенные блоки */
+    --border: #1d2a47;      /* тонкие линии */
+    --accent: #4c8dff;      /* главный синий цвет */
+    --accent-hover: #6aa0ff;
+    --text: #e8eefc;        /* основной текст */
+    --muted: #8593b0;       /* второстепенный текст */
+    --danger: #ff6b7a;      /* ошибки */
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
     min-height: 100vh;
+    line-height: 1.4;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ===== Аватарка (подключается через avatar.html) ===== */
+
+/* Главное: круг. border-radius 50% + одинаковые ширина и высота */
+.avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;           /* чтобы круг не сплющивался в flex-контейнере */
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
+    color: #fff;
+    font-weight: 600;
+    user-select: none;
 }
 
-h1 {
-    color: #2c3e50;
+.avatar-small {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+}
+
+.avatar-big {
+    width: 112px;
+    height: 112px;
+    font-size: 46px;
+}
+
+/* Фото растягивается на весь круг и обрезается по краям */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Удалённый аккаунт */
+.avatar-deleted {
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+/* Пользователям с включённой опцией "меньше анимации" отключаем её */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ===== Главная страница: список чатов ===== */
+
+/* Шапка закреплена сверху */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.header-title {
+    flex: 1;                  /* занимает всё свободное место */
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.logout-link {
+    color: var(--muted);
+    font-size: 14px;
+    transition: color 0.2s;
+}
+
+.logout-link:hover {
+    color: var(--danger);
+}
+
+/* Список чатов по центру, как в десктопном Telegram */
+.chat-list {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 12px 12px 100px;   /* снизу место под кнопку "+" */
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    transition: background 0.2s;
+}
+
+.chat-item:hover {
+    background: var(--surface);
+}
+
+.chat-info {
+    flex: 1;
+    min-width: 0;             /* нужно, чтобы длинное имя не ломало вёрстку */
+}
+
+.chat-name {
+    font-size: 16px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;  /* длинное имя обрезается через "..." */
+}
+
+.chat-name-deleted {
+    color: var(--muted);
+    font-style: italic;
+}
+
+/* Пустой список */
+.empty-block {
+    text-align: center;
+    padding: 90px 20px;
+}
+
+.empty-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.empty-text {
+    color: var(--muted);
+}
+
+/* Круглая кнопка "+" в правом нижнем углу */
+.add-chat-button {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    font-size: 32px;
+    border-radius: 50%;
+    box-shadow: 0 6px 24px rgba(76, 141, 255, 0.35);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.add-chat-button:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
 }

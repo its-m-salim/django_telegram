@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Аккаунт создан</title>
+    <link rel="stylesheet" href="{% static 'registration_success.css' %}">
+</head>
+<body class="success-page">
+    <div class="success-box">
+        {% include "avatar.html" with person=request.user size="big" %}
+
+        <h1 class="success-title">Поздравляем, {{ request.user.first_name }}!</h1>
+        <p class="success-text">Ваш аккаунт успешно создан</p>
+
+        <div class="success-details">
+            <div class="detail-row">
+                <span class="detail-label">Имя</span>
+                <span class="detail-value">{{ request.user.first_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Имя пользователя</span>
+                <span class="detail-value">@{{ request.user.username }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Дата регистрации</span>
+                <span class="detail-value">{{ request.user.date_joined|date:"d.m.Y H:i" }}</span>
+            </div>
+        </div>
+
+        <a class="home-button" href="/">На главную</a>
+    </div>
+</body>
+</html>

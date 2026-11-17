@@ -4,26 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница</title>
+    <title>Чаты</title>
     <link rel="stylesheet" href="{% static 'home.css' %}">
 </head>
-<body>
-    <img src="{{request.user.avatar.url}}" alt="" width="200">
-    <h1>Добро пожаловать! {{request.user.username}}</h1>
-
-    {% for chat in chats %}
-    <div style="display: flex; width: 900px; margin: 0 auto; background-color: gray; color: white; padding: 20px 10px;" class="chat">
-        <img src="{{chat.user1.avatar.url}}" alt="" width="40" height="40">
-        <p>{{chat.user1.first_name}}</p>
-
+<body class="home-page">
+    <div class="header">
+        <a class="header-profile" href="/profile">
+            {% include "avatar.html" with person=request.user size="small" %}
+        </a>
+        <h1 class="header-title">Чаты</h1>
+        <a class="logout-link" href="/logout">Выйти</a>
     </div>
-    {% empty %}
-    <h2>no chats yet</h2>
-    <h2>Самое время начать разговор </h2>
-    <a href="/users">users  </a>
 
-    {% endfor %}
-    <a href="/users">users</a>
-    <a href="/logout">quit</a>
+    <div class="chat-list">
+        {% for item in items %}
+        <a class="chat-item" href="/chat/{{ item.chat.id }}/">
+            {% include "avatar.html" with person=item.other size="small" %}
+            <div class="chat-info">
+                {% if item.other %}
+                <p class="chat-name">{{ item.other.first_name }}</p>
+                {% else %}
+                <p class="chat-name chat-name-deleted">Удалённый аккаунт</p>
+                {% endif %}
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-block">
+            <h2 class="empty-title">Чатов пока нет</h2>
+            <p class="empty-text">Нажмите «+», чтобы начать разговор</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <a class="add-chat-button" href="/users">+</a>
 </body>
 </html>

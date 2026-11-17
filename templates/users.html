@@ -1,20 +1,30 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Новый чат</title>
+    <link rel="stylesheet" href="{% static 'users.css' %}">
 </head>
-<body>
-    {% for user in users %}
-    <div style="display: flex; width: 900px; margin: 0 auto; background-color: gray; color: white; padding: 20px 10px;" class="chat">
-        <img src="{{user.avatar.url}}" alt="" width="40" height="40">
-        <p>{{user.first_name}}</p>
-        <p>{{user.username}}</p>
-
+<body class="users-page">
+    <div class="header">
+        <a class="back-link" href="/">Назад</a>
+        <h1 class="header-title">Новый чат</h1>
     </div>
-    {% empty %}
-    <p>no users detected </p>
-    {% endfor %}
+
+    <div class="user-list">
+        {% for other_user in users %}
+        <a class="user-item" href="/user_chat/{{ other_user.id }}/">
+            {% include "avatar.html" with person=other_user size="small" %}
+            <div class="user-info">
+                <p class="user-name">{{ other_user.first_name }}</p>
+                <p class="user-username">@{{ other_user.username }}</p>
+            </div>
+        </a>
+        {% empty %}
+        <p class="empty-text">Других пользователей пока нет</p>
+        {% endfor %}
+    </div>
 </body>
 </html>

@@ -1,12 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import random
 
+
+
+def random_avatar_color():
+    colors = [
+        "#5865F2",
+        "#E67E22",
+        "#27AE60",
+        "#E84393",
+        "#8E44AD",
+        "#16A085",
+        "#D35400",
+        "#2980B9",
+    ]
+    return random.choice(colors)
 
 
 
 class User(AbstractUser):
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True)
     bio = models.TextField(blank=True)
+    avatar_color = models.CharField(max_length=10)
 
 
 
@@ -22,6 +38,7 @@ class Message(models.Model):
         ("video", "Видео"),
         ("file", "Файл")
     ]
+    
     is_read = models.BooleanField(default=False)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)

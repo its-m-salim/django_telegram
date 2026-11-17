@@ -1,15 +1,26 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Мой профиль</title>
+    <link rel="stylesheet" href="{% static 'profile.css' %}">
 </head>
-<body>
-    <h1>my profile</h1>
-    <img src="{{request.user.avatar.url}}" alt="" width="400" height="400">
-    <p>username {{request.user.username}}</p>
-    <p>name {{request.user.first_name}}</p>
-    <p>name {{request.user.bio|default:"no bio"}}</p>
+<body class="profile-page">
+    <div class="header">
+        <a class="back-link" href="/">Назад</a>
+        <h1 class="header-title">Мой профиль</h1>
+    </div>
+
+    <div class="profile-card">
+        {% include "avatar.html" with person=request.user size="big" %}
+        <h2 class="profile-name">{{ request.user.first_name }}</h2>
+        <p class="profile-username">@{{ request.user.username }}</p>
+        <div class="profile-bio">
+            <p class="profile-label">О себе</p>
+            <p class="profile-bio-text">{{ request.user.bio|default:"Не указано" }}</p>
+        </div>
+    </div>
 </body>
 </html>

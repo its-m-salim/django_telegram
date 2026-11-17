@@ -1,18 +1,28 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Вход</title>
+    <link rel="stylesheet" href="{% static 'login.css' %}">
 </head>
-<body>
-    <h1>Login</h1>
-    <form action="" method="post">
-        {% csrf_token %}
-        <input type="text" name="username">
-        <input type="password" name="password">
-        <button type="submit">Login</button>
-    </form>
-    <p>dont have account yet? <a href="/registration">Create new account here</a></p>
+<body class="login-page">
+    <div class="login-box">
+        <h1 class="login-title">Вход</h1>
+
+        {% if error %}
+        <p class="form-error">Неверное имя пользователя или пароль</p>
+        {% endif %}
+
+        <form class="login-form" action="" method="post">
+            {% csrf_token %}
+            <input class="form-input" type="text" name="username" placeholder="Имя пользователя" required>
+            <input class="form-input" type="password" name="password" placeholder="Пароль" required>
+            <button class="form-button" type="submit">Войти</button>
+        </form>
+
+        <p class="login-text">Нет аккаунта? <a class="login-link" href="/registration">Создать аккаунт</a></p>
+    </div>
 </body>
 </html>
