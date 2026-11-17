@@ -5,10 +5,15 @@ body{
 
 .chat_window{
 
-    max-width: 900px;
+    max-width: 700px;
     margin: 0 auto;
     background-color: bisque;
     border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 
 }
 
@@ -16,6 +21,7 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     background-color: slategrey;
 }
 
@@ -23,6 +29,7 @@ body{
     background-color: skyblue;
     color: white;
     border-radius: 16px;
+    align-self:self-end;
 }
 
 
@@ -30,4 +37,51 @@ body{
     background-color: rgb(217, 96, 30);
     color: white;
     border-radius: 16px;
+    align-self: self-start;
+}
+
+.send{
+    width: 100%;
+    padding: 8px 4px;
+    display: flex;
+    align-items: stretch;
+}
+textarea{
+    width: 80%;
+}
+
+form{
+    width: 100%;
+}
+
+button{
+    width: 17%;
+}
+
+
+
+.attach {
+    position: relative;
+}
+
+.attach-button {
+    list-style: none;
+    cursor: pointer;
+}
+
+.attach-button::-webkit-details-marker {
+    display: none;
+}
+
+.attach-menu {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+}
+
+.file{
+
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
 }

@@ -10,25 +10,87 @@
 </head>
 <body>
     <div class="chat_window">
+        <a href="/">back</a>
         <div class="user">
             {% include "avatar.html" with person=other size="small" %}
-            <p>{{other.name}}</p>
+            <p>{{other.first_name}}</p>
         </div>
+        <p> был всети в {{other.last_login}}</p>
         {% for message in chat_messages %}
         
         {% if  message.sender == request.user %}
         <div class="message">
             <p>{{message.text}}</p>
+            <p>{{message.created_at}}</p>
+            {% if message.file %}
+            <div class="file message">
+                {% if message.file_type == "image" %}
+                <img src="{{message.file.url}}" alt="">
+                {% elif message.file_type == "video" %}
+                    <video controls width="300">
+                        <source src="{{ message.file.url }}">
+                        Ваш браузер не поддерживает видео.
+                    </video>
+                {% else %}
+                <a href="{{ message.file.url }}" download>
+                    📎 {{ message.file.name }}
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            <a href="{% url 'edit_message' message.id %}">edit</a>
         </div>
         {% else %}
         <div class="message2">
             <p>{{message.text}}</p>
+            <p>{{message.created_at}}</p>
+          
+                {% if message.file %}
+                <div class="file message2">
+                    {% if message.file_type == "image" %}
+                    <img src="{{message.file.url}}" alt="">
+                    {% elif message.file_type == "video" %}
+                        <video controls width="300">
+                            <source src="{{ message.file.url }}">
+                            Ваш браузер не поддерживает видео.
+                        </video>
+                    {% else %}
+                    <a href="{{ message.file.url }}" download>
+                    📎 {{ message.file.name }}
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
         </div>
+        <a href="/edit_message/message.id">edit</a>
+
         {% endif %}
         {% empty %}
         <p>no messages</p>
         {% endfor %}
         
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+        
+            <details class="attach">
+                <summary class="attach-button">Прикрепить</summary>
+                <div class="attach-menu">
+                    <p class="attach-label">Изображение</p>
+                    <input class="attach-input" type="file" name="image" accept="image/*">
+                
+                    <p class="attach-label">Видео</p>
+                    <input class="attach-input" type="file" name="video" accept="video/*">
+                
+                    <p class="attach-label">Файл</p>
+                    <input class="attach-input" type="file" name="file">
+                </div>
+            </details>
+        
+            <input type="text" name="message-text" placeholder="Сообщение">
+        
+            <button type="submit">Отправить</button>
+        </form>
+
     </div>
 </body>
 </html>

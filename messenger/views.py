@@ -4,6 +4,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .models import *
 from django.db.models import Q
+from django.utils import timezone
 
 AVATAR_COLORS = ["#e17076", "#faa774", "#a695e7", "#7bc862", "#6ec9cb", "#65aadd", "#ee7aae"]
 
@@ -106,11 +107,18 @@ def user_chat(request, id):
 @login_required
 def chat_page(request, id):
     chat = get_object_or_404(Chat, pk=id)
+    if chat.user1 != request.user and chat.user2 != request.user:
+        return redirect("home")
+
+
+    
+
+
 
     chat_messages = Message.objects.filter(
         chat = chat,
         is_active = True
-    ).order_by("-created_at")
+    ).order_by("created_at")
 
     
     if chat.user1 == request.user:
@@ -125,4 +133,96 @@ def chat_page(request, id):
         "other" : other
     }
 
+    if request.method == 'POST':
+
+        files = request.FILES
+        file = None
+        file_type = None
+        if files.get("image"):
+            file = files['image']
+            file_type = "image"
+        elif files.get("video"):
+            file = files['video']
+            file_type = "video" 
+        elif files.get("file"):
+            file = files['file']
+            file_type = "file"           
+    
+
+
+        if request.POST.get("message-text") or file:
+            Message.objects.create(
+                chat = chat,
+                sender = request.user,
+                text = request.POST['message-text'],
+                file = file,
+                file_type = file_type 
+            )
+        return redirect("chat", chat.id)
+
     return render(request, "chat_page.html", context)
+
+
+
+
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    if request.method == 'POST':
+        data = request.POST
+        user.first_name = data['first_name']
+        if User.objects.filter(username=data['username']).exclude(pk=user.pk).exists():
+            return render(request, "edit_profile.html", {"error": True})
+
+        if request.FILES.get("avatar"):
+            user.avatar = request.FILES["avatar"]
+
+        user.bio = request.POST.get("bio")
+        user.save()
+        return redirect("home")
+
+    return render(request, "edit_profile.html")
+
+
+
+@login_required
+def edit_message(request, message_id):
+    message = get_object_or_404(
+        Message,
+        pk=message_id,
+        sender=request.user,
+        is_active=True
+    )
+
+    if request.method == "POST":
+        text = request.POST.get("text", "").strip()
+
+        if text:
+            message.text = text
+            message.updated_at = timezone.now()
+            message.save()
+
+            return redirect("chat", id=message.chat.id)
+
+    return render(request, "edit_message.html", {"message": message})
+
+
+
+@login_required
+def delete_message(request, message_id):
+    message = get_object_or_404(
+        Message,
+        pk=message_id,
+        sender=request.user,
+        is_active=True
+    )
+
+    if request.method == "POST":
+        message.is_active = False
+        message.save()
+
+    return redirect("chat", chat_id=message.chat.id)
+
+
+

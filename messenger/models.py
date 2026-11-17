@@ -44,7 +44,7 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     text = models.TextField(null=True, blank=True)
     file = models.FileField(upload_to="files/", blank=True)
-    file_type = models.CharField(max_length=20, choices=file_types, default="file")
+    file_type = models.CharField(max_length=20, choices=file_types, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
