@@ -5,6 +5,7 @@
     --surface: #101829;     /* карточки, шапка */
     --surface-2: #162038;   /* поля ввода, вложенные блоки */
     --border: #1d2a47;      /* тонкие линии */
+    --border-strong: #2a3f6b; /* более заметная рамка (аватарки, кнопки) */
     --accent: #4c8dff;      /* главный синий цвет */
     --accent-hover: #6aa0ff;
     --text: #e8eefc;        /* основной текст */
@@ -44,6 +45,7 @@ a {
     color: #fff;
     font-weight: 600;
     user-select: none;
+    border: 2px solid var(--border-strong);   /* рамка вокруг аватарки */
 }
 
 .avatar-small {
@@ -56,6 +58,7 @@ a {
     width: 112px;
     height: 112px;
     font-size: 46px;
+    border: 3px solid var(--accent);          /* у большой аватарки рамка синяя */
 }
 
 /* Фото растягивается на весь круг и обрезается по краям */
@@ -70,6 +73,18 @@ a {
 .avatar-deleted {
     background: var(--surface-2);
     color: var(--muted);
+}
+
+/* Плавное появление карточки (единственная анимация на страницах) */
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Пользователям с включённой опцией "меньше анимации" отключаем её */
@@ -115,30 +130,43 @@ a {
 .chat-list {
     max-width: 720px;
     margin: 0 auto;
-    padding: 12px 12px 100px;   /* снизу место под кнопку "+" */
+    padding: 16px 12px 100px;   /* снизу место под кнопку "+" */
 }
 
+/* Каждый чат — отдельная карточка с рамкой */
 .chat-item {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 10px 14px;
-    border-radius: 14px;
-    transition: background 0.2s;
+    margin-bottom: 8px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: border-color 0.2s, background 0.2s;
 }
 
 .chat-item:hover {
-    background: var(--surface);
+    background: var(--surface-2);
+    border-color: var(--border-strong);
 }
 
 .chat-info {
     flex: 1;
-    min-width: 0;             /* нужно, чтобы длинное имя не ломало вёрстку */
+    min-width: 0;             /* нужно, чтобы длинный текст не ломал вёрстку */
+}
+
+/* Первая строка: имя слева, время справа */
+.chat-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
 }
 
 .chat-name {
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;  /* длинное имя обрезается через "..." */
@@ -147,6 +175,26 @@ a {
 .chat-name-deleted {
     color: var(--muted);
     font-style: italic;
+}
+
+.chat-time {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* Вторая строка: начало последнего сообщения */
+.chat-last {
+    margin-top: 3px;
+    color: var(--muted);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chat-last-you {
+    color: var(--accent);
 }
 
 /* Пустой список */

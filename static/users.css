@@ -5,6 +5,7 @@
     --surface: #101829;     /* карточки, шапка */
     --surface-2: #162038;   /* поля ввода, вложенные блоки */
     --border: #1d2a47;      /* тонкие линии */
+    --border-strong: #2a3f6b; /* более заметная рамка (аватарки, кнопки) */
     --accent: #4c8dff;      /* главный синий цвет */
     --accent-hover: #6aa0ff;
     --text: #e8eefc;        /* основной текст */
@@ -44,6 +45,7 @@ a {
     color: #fff;
     font-weight: 600;
     user-select: none;
+    border: 2px solid var(--border-strong);   /* рамка вокруг аватарки */
 }
 
 .avatar-small {
@@ -56,6 +58,7 @@ a {
     width: 112px;
     height: 112px;
     font-size: 46px;
+    border: 3px solid var(--accent);          /* у большой аватарки рамка синяя */
 }
 
 /* Фото растягивается на весь круг и обрезается по краям */
@@ -72,6 +75,18 @@ a {
     color: var(--muted);
 }
 
+/* Плавное появление карточки (единственная анимация на страницах) */
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Пользователям с включённой опцией "меньше анимации" отключаем её */
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -80,7 +95,7 @@ a {
     }
 }
 
-/* ===== Страница "Новый чат": список пользователей ===== */
+/* ===== Шапка с кнопкой "Назад" ===== */
 
 .header {
     position: sticky;
@@ -109,24 +124,82 @@ a {
     font-weight: 600;
 }
 
-/* Список по центру, как на главной */
+/* ===== Новый чат: поиск и список пользователей ===== */
+
 .user-list {
     max-width: 720px;
     margin: 0 auto;
-    padding: 12px;
+    padding: 16px 12px;
 }
 
+/* Строка поиска */
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    padding: 13px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 24px;
+    color: var(--text);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.search-input::placeholder {
+    color: var(--muted);
+}
+
+.search-input:focus {
+    border-color: var(--accent);
+}
+
+.search-button {
+    padding: 0 22px;
+    background: var(--accent);
+    border: none;
+    border-radius: 24px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search-button:hover {
+    background: var(--accent-hover);
+}
+
+/* Ссылка "Сбросить поиск" */
+.search-reset {
+    display: inline-block;
+    margin: -6px 0 14px 6px;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+/* Каждый пользователь — карточка с рамкой */
 .user-item {
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 10px 14px;
-    border-radius: 14px;
-    transition: background 0.2s;
+    margin-bottom: 8px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: border-color 0.2s, background 0.2s;
 }
 
 .user-item:hover {
-    background: var(--surface);
+    background: var(--surface-2);
+    border-color: var(--border-strong);
 }
 
 .user-info {
@@ -136,7 +209,7 @@ a {
 
 .user-name {
     font-size: 16px;
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -148,9 +221,9 @@ a {
     margin-top: 2px;
 }
 
-/* Когда других пользователей нет */
+/* Когда никого нет или ничего не нашлось */
 .empty-text {
     text-align: center;
     color: var(--muted);
-    padding: 90px 20px;
+    padding: 70px 20px;
 }

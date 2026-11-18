@@ -5,6 +5,7 @@
     --surface: #101829;     /* карточки, шапка */
     --surface-2: #162038;   /* поля ввода, вложенные блоки */
     --border: #1d2a47;      /* тонкие линии */
+    --border-strong: #2a3f6b; /* более заметная рамка (аватарки, кнопки) */
     --accent: #4c8dff;      /* главный синий цвет */
     --accent-hover: #6aa0ff;
     --text: #e8eefc;        /* основной текст */
@@ -44,6 +45,7 @@ a {
     color: #fff;
     font-weight: 600;
     user-select: none;
+    border: 2px solid var(--border-strong);   /* рамка вокруг аватарки */
 }
 
 .avatar-small {
@@ -56,6 +58,7 @@ a {
     width: 112px;
     height: 112px;
     font-size: 46px;
+    border: 3px solid var(--accent);          /* у большой аватарки рамка синяя */
 }
 
 /* Фото растягивается на весь круг и обрезается по краям */
@@ -72,54 +75,7 @@ a {
     color: var(--muted);
 }
 
-/* Пользователям с включённой опцией "меньше анимации" отключаем её */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
-    }
-}
-
-/* ===== Поля и кнопки форм ===== */
-
-.form-input {
-    width: 100%;
-    padding: 14px 16px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    color: var(--text);
-    font-size: 16px;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
-.form-input::placeholder {
-    color: var(--muted);
-}
-
-.form-input:focus {
-    border-color: var(--accent);
-}
-
-.form-button {
-    width: 100%;
-    padding: 14px;
-    background: var(--accent);
-    border: none;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.form-button:hover {
-    background: var(--accent-hover);
-}
-
-/* Единственная анимация на странице: плавное появление карточки */
+/* Плавное появление карточки (единственная анимация на страницах) */
 @keyframes appear {
     from {
         opacity: 0;
@@ -128,6 +84,14 @@ a {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* Пользователям с включённой опцией "меньше анимации" отключаем её */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
     }
 }
 
@@ -153,7 +117,6 @@ a {
 
 .success-box .avatar {
     margin: 0 auto 20px;
-    box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--accent);
 }
 
 .success-title {

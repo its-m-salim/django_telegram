@@ -4,18 +4,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход</title>
+    <title>Изменить сообщение</title>
     <link rel="stylesheet" href="{% static 'edit_message.css' %}">
 </head>
-<body>
-    
-<form method="POST">
-    {% csrf_token %}
+<body class="edit-message-page">
+    <div class="header">
+        <a class="back-link" href="{% url 'chat' message.chat.id %}">Назад</a>
+        <h1 class="header-title">Изменить сообщение</h1>
+    </div>
 
-    <textarea name="text" required>{{ message.text }}</textarea>
+    <div class="edit-box">
+        <form class="edit-form" method="POST">
+            {% csrf_token %}
+            <div class="form-field">
+                <label class="form-label" for="text">Текст сообщения</label>
+                <textarea class="form-textarea" id="text" name="text" required>{{ message.text|default_if_none:"" }}</textarea>
+            </div>
+            <button class="form-button" type="submit">Сохранить</button>
+        </form>
 
-    <button type="submit">Сохранить</button>
-</form>
-
+        <details class="delete-block">
+            <summary class="delete-summary">Удалить сообщение</summary>
+            <div class="delete-confirm">
+                <p class="delete-text">В чате останется пометка «Сообщение удалено». Вернуть сообщение будет нельзя.</p>
+                <form method="POST" action="{% url 'delete_message' message.id %}">
+                    {% csrf_token %}
+                    <button class="delete-button" type="submit">Да, удалить</button>
+                </form>
+            </div>
+        </details>
+    </div>
 </body>
 </html>

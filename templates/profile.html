@@ -9,7 +9,7 @@
 </head>
 <body class="profile-page">
     <div class="header">
-        <a class="back-link" href="/">Назад</a>
+        <a class="back-link" href="{% url 'home' %}">Назад</a>
         <h1 class="header-title">Мой профиль</h1>
     </div>
 
@@ -21,7 +21,7 @@
             <p class="profile-label">О себе</p>
             <p class="profile-bio-text">{{ request.user.bio|default:"Не указано" }}</p>
         </div>
-        <a href="/edit_profile">edit_profile</a>
+        <a class="edit-profile-button" href="{% url 'edit_profile' %}">Редактировать профиль</a>
     </div>
 </body>
 </html>

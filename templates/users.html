@@ -9,13 +9,22 @@
 </head>
 <body class="users-page">
     <div class="header">
-        <a class="back-link" href="/">Назад</a>
+        <a class="back-link" href="{% url 'home' %}">Назад</a>
         <h1 class="header-title">Новый чат</h1>
     </div>
 
     <div class="user-list">
+        <form class="search-form" action="{% url 'users' %}" method="get">
+            <input class="search-input" type="search" name="q" value="{{ request.GET.q }}" placeholder="Поиск по имени или @username" autocomplete="off">
+            <button class="search-button" type="submit">Найти</button>
+        </form>
+
+        {% if request.GET.q %}
+        <a class="search-reset" href="{% url 'users' %}">Сбросить поиск</a>
+        {% endif %}
+
         {% for other_user in users %}
-        <a class="user-item" href="/user_chat/{{ other_user.id }}/">
+        <a class="user-item" href="{% url 'user_chat' other_user.id %}">
             {% include "avatar.html" with person=other_user size="small" %}
             <div class="user-info">
                 <p class="user-name">{{ other_user.first_name }}</p>
@@ -23,7 +32,9 @@
             </div>
         </a>
         {% empty %}
-        <p class="empty-text">Других пользователей пока нет</p>
+        <p class="empty-text">
+            {% if request.GET.q %}Никого не нашли по запросу «{{ request.GET.q }}»{% else %}Других пользователей пока нет{% endif %}
+        </p>
         {% endfor %}
     </div>
 </body>

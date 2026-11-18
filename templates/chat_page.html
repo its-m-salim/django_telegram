@@ -1,96 +1,120 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="{% static 'chat.css' %}">
-
-    <title>Document</title>
+    <title>Чат — {{ other.first_name|default:"Удалённый аккаунт" }}</title>
+    <link rel="stylesheet" href="{% static 'chat.css' %}">
 </head>
-<body>
-    <div class="chat_window">
-        <a href="/">back</a>
-        <div class="user">
+<body class="chat-page">
+
+    <div class="chat-header">
+        <a class="back-link" href="{% url 'home' %}">Назад</a>
+
+        {% if other %}
+        <a class="chat-user" href="{% url 'user_profile' other.id %}">
             {% include "avatar.html" with person=other size="small" %}
-            <p>{{other.first_name}}</p>
-        </div>
-        <p> был всети в {{other.last_login}}</p>
-        {% for message in chat_messages %}
-        
-        {% if  message.sender == request.user %}
-        <div class="message">
-            <p>{{message.text}}</p>
-            <p>{{message.created_at}}</p>
-            {% if message.file %}
-            <div class="file message">
-                {% if message.file_type == "image" %}
-                <img src="{{message.file.url}}" alt="">
-                {% elif message.file_type == "video" %}
-                    <video controls width="300">
-                        <source src="{{ message.file.url }}">
-                        Ваш браузер не поддерживает видео.
-                    </video>
-                {% else %}
-                <a href="{{ message.file.url }}" download>
-                    📎 {{ message.file.name }}
-                </a>
-                {% endif %}
+            <div class="chat-user-info">
+                <p class="chat-user-name">{{ other.first_name }}</p>
+                <p class="chat-user-status">
+                    {% if other.last_login %}Последний вход: {{ other.last_login|date:"d.m.Y H:i" }}{% else %}Ещё не входил{% endif %}
+                </p>
             </div>
-            {% endif %}
-            <a href="{% url 'edit_message' message.id %}">edit</a>
-        </div>
+        </a>
         {% else %}
-        <div class="message2">
-            <p>{{message.text}}</p>
-            <p>{{message.created_at}}</p>
-          
-                {% if message.file %}
-                <div class="file message2">
-                    {% if message.file_type == "image" %}
-                    <img src="{{message.file.url}}" alt="">
-                    {% elif message.file_type == "video" %}
-                        <video controls width="300">
+        <div class="chat-user">
+            {% include "avatar.html" with person=other size="small" %}
+            <div class="chat-user-info">
+                <p class="chat-user-name chat-user-name-deleted">Удалённый аккаунт</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <a class="refresh-button" href="{% url 'chat' chat.id %}">Обновить</a>
+    </div>
+
+    <div class="messages">
+        <div class="messages-inner">
+            {% for message in chat_messages %}
+
+            {% ifchanged message.created_at|date:"d.m.Y" %}
+            <div class="date-divider">{{ message.created_at|date:"j E Y" }}</div>
+            {% endifchanged %}
+
+            <div class="message-row {% if message.sender == request.user %}message-row-own{% else %}message-row-other{% endif %}">
+
+                {% if message.is_active %}
+                <div class="message-bubble">
+
+                    {% if message.file %}
+                        {% if message.file_type == "image" %}
+                        <img class="message-image" src="{{ message.file.url }}" alt="Изображение">
+                        {% elif message.file_type == "video" %}
+                        <video class="message-video" controls>
                             <source src="{{ message.file.url }}">
                             Ваш браузер не поддерживает видео.
                         </video>
-                    {% else %}
-                    <a href="{{ message.file.url }}" download>
-                    📎 {{ message.file.name }}
-                    </a>
+                        {% else %}
+                        <a class="message-file" href="{{ message.file.url }}" download>📎 {{ message.file.name|cut:"files/" }}</a>
+                        {% endif %}
                     {% endif %}
+
+                    {% if message.text %}
+                    <p class="message-text">{{ message.text }}</p>
+                    {% endif %}
+
+                    <p class="message-time">
+                        {% if message.updated_at %}<span class="message-edited">изменено {{ message.updated_at|date:"H:i" }}</span>{% endif %}
+                        {{ message.created_at|date:"H:i" }}
+                    </p>
+                </div>
+
+                {% if message.sender == request.user %}
+                <a class="message-edit" href="{% url 'edit_message' message.id %}">Изменить</a>
+                {% endif %}
+
+                {% else %}
+
+                <div class="message-bubble message-deleted">
+                    <p class="message-text">Сообщение удалено</p>
                 </div>
                 {% endif %}
-        </div>
-        <a href="/edit_message/message.id">edit</a>
+            </div>
 
-        {% endif %}
-        {% empty %}
-        <p>no messages</p>
-        {% endfor %}
-        
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-        
+            {% empty %}
+            <p class="chat-empty">Сообщений пока нет. Напишите первым</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if other %}
+    <form class="composer" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="composer-inner">
+
             <details class="attach">
-                <summary class="attach-button">Прикрепить</summary>
+                <summary class="attach-button" title="Прикрепить">📎</summary>
                 <div class="attach-menu">
                     <p class="attach-label">Изображение</p>
                     <input class="attach-input" type="file" name="image" accept="image/*">
-                
+
                     <p class="attach-label">Видео</p>
                     <input class="attach-input" type="file" name="video" accept="video/*">
-                
+
                     <p class="attach-label">Файл</p>
                     <input class="attach-input" type="file" name="file">
                 </div>
             </details>
-        
-            <input type="text" name="message-text" placeholder="Сообщение">
-        
-            <button type="submit">Отправить</button>
-        </form>
 
-    </div>
+            <input class="message-input" type="text" name="message-text" placeholder="Сообщение" autocomplete="off">
+
+            <button class="send-button" type="submit">Отправить</button>
+        </div>
+    </form>
+    {% else %}
+    <p class="chat-closed">Аккаунт собеседника удалён, писать ему нельзя</p>
+    {% endif %}
+
 </body>
 </html>

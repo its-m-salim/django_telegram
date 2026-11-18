@@ -5,6 +5,7 @@
     --surface: #101829;     /* карточки, шапка */
     --surface-2: #162038;   /* поля ввода, вложенные блоки */
     --border: #1d2a47;      /* тонкие линии */
+    --border-strong: #2a3f6b; /* более заметная рамка (аватарки, кнопки) */
     --accent: #4c8dff;      /* главный синий цвет */
     --accent-hover: #6aa0ff;
     --text: #e8eefc;        /* основной текст */
@@ -44,6 +45,7 @@ a {
     color: #fff;
     font-weight: 600;
     user-select: none;
+    border: 2px solid var(--border-strong);   /* рамка вокруг аватарки */
 }
 
 .avatar-small {
@@ -56,6 +58,7 @@ a {
     width: 112px;
     height: 112px;
     font-size: 46px;
+    border: 3px solid var(--accent);          /* у большой аватарки рамка синяя */
 }
 
 /* Фото растягивается на весь круг и обрезается по краям */
@@ -72,6 +75,18 @@ a {
     color: var(--muted);
 }
 
+/* Плавное появление карточки (единственная анимация на страницах) */
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* Пользователям с включённой опцией "меньше анимации" отключаем её */
 @media (prefers-reduced-motion: reduce) {
     * {
@@ -80,7 +95,7 @@ a {
     }
 }
 
-/* ===== Страница профиля ===== */
+/* ===== Шапка с кнопкой "Назад" ===== */
 
 .header {
     position: sticky;
@@ -109,6 +124,8 @@ a {
     font-weight: 600;
 }
 
+/* ===== Мой профиль ===== */
+
 .profile-card {
     max-width: 420px;
     margin: 40px auto;
@@ -120,10 +137,9 @@ a {
     animation: appear 0.4s ease;
 }
 
-/* Большая аватарка по центру с тонким синим кольцом */
+/* Большая аватарка по центру */
 .profile-card .avatar {
     margin: 0 auto 18px;
-    box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--accent);
 }
 
 .profile-name {
@@ -155,15 +171,19 @@ a {
     word-break: break-word;
 }
 
-@keyframes appear {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Кнопка "Редактировать профиль" */
+.edit-profile-button {
+    display: block;
+    margin-top: 20px;
+    padding: 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    color: var(--accent);
+    transition: background 0.2s;
+}
+
+.edit-profile-button:hover {
+    background: var(--surface-2);
 }
 
 @media (max-width: 480px) {

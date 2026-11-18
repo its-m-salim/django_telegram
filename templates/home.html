@@ -9,22 +9,36 @@
 </head>
 <body class="home-page">
     <div class="header">
-        <a class="header-profile" href="/profile">
+        <a class="header-profile" href="{% url 'profile' %}">
             {% include "avatar.html" with person=request.user size="small" %}
         </a>
         <h1 class="header-title">Чаты</h1>
-        <a class="logout-link" href="/logout">Выйти</a>
+        <a class="logout-link" href="{% url 'logout' %}">Выйти</a>
     </div>
 
     <div class="chat-list">
+        {% now "d.m.Y" as today %}
+
         {% for item in items %}
-        <a class="chat-item" href="/chat/{{ item.chat.id }}/">
+        <a class="chat-item" href="{% url 'chat' item.chat.id %}">
             {% include "avatar.html" with person=item.other size="small" %}
             <div class="chat-info">
-                {% if item.other %}
-                <p class="chat-name">{{ item.other.first_name }}</p>
-                {% else %}
-                <p class="chat-name chat-name-deleted">Удалённый аккаунт</p>
+                <div class="chat-top">
+                    {% if item.other %}
+                    <p class="chat-name">{{ item.other.first_name }}</p>
+                    {% else %}
+                    <p class="chat-name chat-name-deleted">Удалённый аккаунт</p>
+                    {% endif %}
+
+                    {% if item.last_message %}
+                    <span class="chat-time">
+                        {% if item.last_message.created_at|date:"d.m.Y" == today %}{{ item.last_message.created_at|date:"H:i" }}{% else %}{{ item.last_message.created_at|date:"d.m.y" }}{% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if item.last_message %}
+                <p class="chat-last">{% if item.last_message.sender == request.user %}<span class="chat-last-you">Вы:</span> {% endif %}{{ item.last_message.text|truncatechars:45 }}</p>
                 {% endif %}
             </div>
         </a>
@@ -36,6 +50,6 @@
         {% endfor %}
     </div>
 
-    <a class="add-chat-button" href="/users">+</a>
+    <a class="add-chat-button" href="{% url 'users' %}">+</a>
 </body>
 </html>

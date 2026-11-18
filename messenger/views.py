@@ -21,7 +21,12 @@ def home_page(request):
             other = chat.user2
         else:
             other = chat.user1
-        items.append({"chat": chat, "other": other})
+
+        last_message = Message.objects.filter(
+            chat=chat, is_active=True
+        ).exclude(text__isnull=True).exclude(text="").order_by("-created_at").first()
+
+        items.append({"chat": chat, "other": other, "last_message": last_message})
 
     return render(request, "home.html", {"items": items})
 
@@ -80,8 +85,16 @@ def profile(request):
 
 @login_required
 def get_users(request):
-    users = User.objects.exclude(username=request.user.username)
+    query = request.GET.get("q", "").strip()
+    users = User.objects.exclude(pk=request.user.pk)
+
+    if query:
+        users = users.filter(
+            Q(first_name__icontains=query) | Q(username__icontains=query)
+        )
+
     return render(request, "users.html", {"users": users})
+
 
 
 
@@ -111,13 +124,9 @@ def chat_page(request, id):
         return redirect("home")
 
 
-    
-
-
 
     chat_messages = Message.objects.filter(
-        chat = chat,
-        is_active = True
+        chat = chat
     ).order_by("created_at")
 
     
@@ -179,6 +188,7 @@ def edit_profile(request):
             user.avatar = request.FILES["avatar"]
 
         user.bio = request.POST.get("bio")
+        user.username = data['username']
         user.save()
         return redirect("home")
 
@@ -222,7 +232,13 @@ def delete_message(request, message_id):
         message.is_active = False
         message.save()
 
-    return redirect("chat", chat_id=message.chat.id)
+    return redirect("chat", id=message.chat.id)
 
+
+
+@login_required
+def user_profile(request, id):
+    person = get_object_or_404(User, pk=id)
+    return render(request, "user_profile.html", {"person": person})
 
 

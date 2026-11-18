@@ -4,26 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход</title>
+    <title>Редактирование профиля</title>
     <link rel="stylesheet" href="{% static 'edit_profile.css' %}">
 </head>
-<body>
-    <div>
-        <h1>Редактирования </h1>
+<body class="edit-profile-page">
+    <div class="header">
+        <a class="back-link" href="{% url 'profile' %}">Назад</a>
+        <h1 class="header-title">Редактирование профиля</h1>
+    </div>
+
+    <div class="edit-box">
+        {% include "avatar.html" with person=request.user size="big" %}
 
         {% if error %}
-        <p class="form-error">Выберите другое имя пользователя</p>
+        <p class="form-error">Это имя пользователя занято. Выберите другое</p>
         {% endif %}
 
-        <form method="POST" enctype="multipart/form-data">
+        <form class="edit-form" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
-            <input class="form-input" type="text" name="username" placeholder="Имя пользователя" value="{{request.user.username}}" required>
-            <input class="form-input" type="text" name="first_name" placeholder="Имя" value="{{request.user.first_name}}"  required>
-            <label for="avatar">avatar</label>
-            <input type="file" name="avatar" accept="image/*">
-            <textarea name="bio" >{{request.user.bio|default:"Добавьте описание"}}</textarea>
-            <button class="form-button" type="submit">Изменить</button>
-            <a href="/profile">back</a>
+
+            <div class="form-field">
+                <label class="form-label" for="username">Имя пользователя</label>
+                <input class="form-input" id="username" type="text" name="username" value="{{ request.user.username }}" required>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label" for="first_name">Имя</label>
+                <input class="form-input" id="first_name" type="text" name="first_name" value="{{ request.user.first_name }}" required>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label" for="avatar">Фото профиля</label>
+                <input class="avatar-input" id="avatar" type="file" name="avatar" accept="image/*">
+            </div>
+
+            <div class="form-field">
+                <label class="form-label" for="bio">О себе</label>
+                <textarea class="form-textarea" id="bio" name="bio" placeholder="Расскажите о себе">{{ request.user.bio }}</textarea>
+            </div>
+
+            <button class="form-button" type="submit">Сохранить</button>
         </form>
     </div>
 </body>
