@@ -235,8 +235,8 @@ def delete_message(request, message_id):
 
 
 @login_required
-def user_profile(request,chat_type,  id):
-    person = get_object_or_404(User, pk=id) if chat_type == "private" else get_object_or_404(Chat, pk =id)
+def user_profile(request,  id):
+    person = get_object_or_404(User, pk=id)
     return render(request, "user_profile.html", {"person": person})
 
 
@@ -279,3 +279,15 @@ def create_group(request):
 
     users = User.objects.exclude(pk = request.user.id)
     return render(request, "group_form.html", {"users": users})
+
+
+
+
+@login_required
+def group_profile(request, id):
+    chat = get_object_or_404(Chat, pk = id, type="group")
+    if not chat.members.filter(user = request.user).exists():
+        return redirect("chat_page", chat.id)
+
+    members = chat.members.select_related("user")
+    return render(request, "group_profile.html", {"chat": chat,"members": members})

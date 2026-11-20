@@ -114,6 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-en'
 
+TIME_ZONE = "Asia/Dushanbe"
 
 USE_I18N = True
 

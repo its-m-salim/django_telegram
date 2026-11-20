@@ -15,7 +15,7 @@
         {% if chat.type == "private" %}
     
             {% if other %}
-            <a class="chat-user" href="{% url 'user_profile' chat.type other.id %}">
+            <a class="chat-user" href="{% url 'user_profile' other.id %}">
                 {% include "avatar.html" with person=other size="small" %}
                 <div class="chat-user-info">
                     <p class="chat-user-name">{{ other.first_name }}</p>
@@ -34,12 +34,12 @@
             {% endif %}
 
         {% else %}
-        <a class="chat-user" href="{% url 'user_profile' chat.type chat.id %}">
+        <a class="chat-user" href="{% url 'group_profile' chat.id %}">
             {% include "avatar.html" with person=chat size="small" %}
             <div class="chat-user-info">
                 <p class="chat-user-name">{{ chat.title }}</p>
                 <p class="chat-user-status">
-                    {% if other.last_login %}Последний вход: {{ other.last_login|date:"d.m.Y H:i" }}{% else %}Ещё не входил{% endif %}
+                    {{chat.members.count}}
                 </p>
             </div>
         </a>

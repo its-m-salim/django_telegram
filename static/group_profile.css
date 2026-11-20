@@ -1,0 +1,265 @@
+/* ===== Общие стили: цвета, сброс, аватарки ===== */
+
+:root {
+    --bg: #0a0f1c;          /* фон страницы (почти чёрный с синим) */
+    --surface: #101829;     /* карточки, шапка */
+    --surface-2: #162038;   /* поля ввода, вложенные блоки */
+    --border: #1d2a47;      /* тонкие линии */
+    --border-strong: #2a3f6b; /* более заметная рамка (аватарки, кнопки) */
+    --accent: #4c8dff;      /* главный синий цвет */
+    --accent-hover: #6aa0ff;
+    --text: #e8eefc;        /* основной текст */
+    --muted: #8593b0;       /* второстепенный текст */
+    --danger: #ff6b7a;      /* ошибки */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.4;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ===== Аватарка (подключается через avatar.html) ===== */
+
+/* Главное: круг. border-radius 50% + одинаковые ширина и высота */
+.avatar {
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;           /* чтобы круг не сплющивался в flex-контейнере */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    user-select: none;
+    border: 2px solid var(--border-strong);   /* рамка вокруг аватарки */
+}
+
+.avatar-small {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+}
+
+.avatar-big {
+    width: 112px;
+    height: 112px;
+    font-size: 46px;
+    border: 3px solid var(--accent);          /* у большой аватарки рамка синяя */
+}
+
+/* Фото растягивается на весь круг и обрезается по краям */
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Удалённый аккаунт */
+.avatar-deleted {
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+/* Плавное появление карточки (единственная анимация на страницах) */
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Пользователям с включённой опцией "меньше анимации" отключаем её */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ===== Шапка с кнопкой "Назад" ===== */
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+}
+
+.back-link {
+    color: var(--accent);
+    font-size: 16px;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--accent-hover);
+}
+
+.header-title {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* ===== Профиль собеседника ===== */
+
+.user-card {
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 36px 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-align: center;
+    animation: appear 0.4s ease;
+}
+
+.user-card .avatar {
+    margin: 0 auto 18px;
+}
+
+.user-card-name {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.user-card-username {
+    margin-top: 4px;
+    color: var(--muted);
+}
+
+.user-card-bio {
+    margin-top: 26px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: 14px;
+    text-align: left;
+}
+
+.user-card-label {
+    margin-bottom: 4px;
+    color: var(--accent);
+    font-size: 13px;
+}
+
+.user-card-bio-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Дата регистрации и последний вход */
+.user-card-details {
+    margin-top: 14px;
+    padding: 4px 16px;
+    background: var(--surface-2);
+    border-radius: 14px;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.detail-value {
+    font-size: 14px;
+    text-align: right;
+}
+
+.write-button {
+    display: block;
+    margin-top: 22px;
+    padding: 14px;
+    background: var(--accent);
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.write-button:hover {
+    background: var(--accent-hover);
+}
+
+@media (max-width: 480px) {
+    .user-card {
+        margin: 20px 12px;
+    }
+}
+
+
+/* ===== Участники группы ===== */
+
+.member-list {
+    margin-top: 14px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: 14px;
+    text-align: left;
+}
+
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.member-item:last-child {
+    border-bottom: none;
+}
+
+.member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name {
+    font-weight: 600;
+}
+
+.member-username {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.member-role {
+    color: var(--accent);
+    font-size: 12px;
+}

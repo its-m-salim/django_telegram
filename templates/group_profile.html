@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ chat.title }}</title>
+    <link rel="stylesheet" href="{% static 'group_profile.css' %}">
+</head>
+<body class="group-profile-page">
+    <div class="header">
+        <a class="back-link" href="{% url 'chat' chat.id %}">К чату</a>
+        <h1 class="header-title">Группа</h1>
+    </div>
+
+    <div class="user-card">
+        {% include "avatar.html" with person=chat size="big" %}
+        <h2 class="user-card-name">{{ chat.title }}</h2>
+        <p class="user-card-username">Участников: {{ members|length }}</p>
+
+        <div class="user-card-bio">
+            <p class="user-card-label">Описание</p>
+            <p class="user-card-bio-text">{{ chat.description|default:"Не указано" }}</p>
+        </div>
+
+        <div class="member-list">
+            <p class="user-card-label">Участники</p>
+            {% for member in members %}
+            <a class="member-item" href="{% url 'user_profile' member.user.id %}">
+                {% include "avatar.html" with person=member.user size="small" %}
+                <div class="member-info">
+                    <p class="member-name">{{ member.user.first_name }}</p>
+                    <p class="member-username">@{{ member.user.username }}</p>
+                </div>
+                {% if member.role == "owner" %}<span class="member-role">владелец</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
