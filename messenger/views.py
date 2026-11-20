@@ -11,16 +11,15 @@ AVATAR_COLORS = ["#e17076", "#faa774", "#a695e7", "#7bc862", "#6ec9cb", "#65aadd
 
 @login_required
 def home_page(request):
-    chats = Chat.objects.filter(
-        Q(user1=request.user) | Q(user2=request.user)
-    ).order_by("-created_at")
+    chats = Chat.objects.filter(members__user=request.user).order_by("-created_at")
 
     items = []
     for chat in chats:
-        if chat.user1 == request.user:
-            other = chat.user2
+        other_member = chat.members.exclude(user=request.user).select_related("user").first()
+        if other_member and chat.type == "private":
+            other = other_member.user
         else:
-            other = chat.user1
+            other = None
 
         last_message = Message.objects.filter(
             chat=chat, is_active=True
@@ -29,6 +28,10 @@ def home_page(request):
         items.append({"chat": chat, "other": other, "last_message": last_message})
 
     return render(request, "home.html", {"items": items})
+
+
+
+
 
 
 @login_required
@@ -97,44 +100,39 @@ def get_users(request):
 
 
 
-
 @login_required
 def user_chat(request, id):
-
     other = get_object_or_404(User, pk=id)
 
     chat = Chat.objects.filter(
-        Q(user1 = request.user, user2 = other) | Q(user2 = request.user, user1 = other) 
-    ).first()
+        type="private", members__user=request.user
+    ).filter(members__user=other).first()
 
     if chat is None:
-        chat = Chat.objects.create(
-            user1 = request.user,
-            user2 = other
-        )
+        chat = Chat.objects.create(type="private", created_by=request.user)
+        ChatMember.objects.create(chat=chat, user=request.user, role="member")
+        ChatMember.objects.create(chat=chat, user=other, role="member")
 
-    return redirect("chat", id = chat.id)
+    return redirect("chat", id=chat.id)
+
+
+
+
+
+
 
 
 
 @login_required
 def chat_page(request, id):
     chat = get_object_or_404(Chat, pk=id)
-    if chat.user1 != request.user and chat.user2 != request.user:
+    if not chat.members.filter(user=request.user).exists():
         return redirect("home")
 
-
-
-    chat_messages = Message.objects.filter(
-        chat = chat
-    ).order_by("created_at")
-
+    chat_messages = Message.objects.filter(chat=chat).order_by("created_at")
     
-    if chat.user1 == request.user:
-        other = chat.user2
-    else:
-        other = chat.user1
-
+    other_member = chat.members.exclude(user=request.user).select_related("user").first()
+    other = other_member.user if other_member else None
 
     context = {
         "chat" : chat,
@@ -237,8 +235,47 @@ def delete_message(request, message_id):
 
 
 @login_required
-def user_profile(request, id):
-    person = get_object_or_404(User, pk=id)
+def user_profile(request,chat_type,  id):
+    person = get_object_or_404(User, pk=id) if chat_type == "private" else get_object_or_404(Chat, pk =id)
     return render(request, "user_profile.html", {"person": person})
 
 
+
+
+@login_required
+def create_group(request):
+    if request.method == 'POST':
+        data = request.POST
+        members = request.POST.getlist("members")
+
+        if not data.get('title').strip():
+            return render("group_form", {"error": "Имя группы не может быть пустым."})
+
+        if not members or len(members) < 1:
+            return render("group_form", {"error": "Нужно выбрать хотья бы одного участника"}) 
+
+
+        chat = Chat.objects.create(
+            title = data['title'],
+            description = data.get("caption"),
+            created_by = request.user,
+            type = "group",
+            avatar = request.FILES.get("avatar")
+        )
+
+        ChatMember.objects.create(
+            chat = chat,
+            user = request.user,
+            role = "owner"
+        )
+
+        for member in members:
+            ChatMember.objects.create(
+                chat = chat,
+                user = get_object_or_404(User, pk = member),
+                role = "member"
+            )
+        return redirect("chat", id=chat.id)
+
+    users = User.objects.exclude(pk = request.user.id)
+    return render(request, "group_form.html", {"users": users})

@@ -114,7 +114,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'ru-en'
 
-TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -147,3 +146,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_URL = "login"
 
 AUTH_USER_MODEL = "messenger.User"
+
+
+
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.trycloudflare.com",
+    "https://*.ngrok-free.app",
+    "https://*.loca.lt",
+]

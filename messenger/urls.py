@@ -13,8 +13,10 @@ urlpatterns = [
     path("edit_profile/", edit_profile, name="edit_profile"),
     path("edit_message/<int:message_id>/", edit_message, name="edit_message"),
     path("delete_message/<int:message_id>/", delete_message, name="delete_message"),
-    path("user/<int:id>/", user_profile, name="user_profile"),]
+    path("user/<int:id>/", user_profile, name="user_profile"),
+    path("group_form/", create_group, name="group_form")
 
-
+    
+]
 
 

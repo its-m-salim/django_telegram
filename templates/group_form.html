@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Creating Group</h1>
+    {% if error %}
+    <h1>{{error}}</h1>
+    {% endif %}
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="title" placeholder="имя группы" required>
+        <textarea name="caption" id="" placeholder="описание"></textarea>
+        <input type="file" name="avatar">
+        {% for user in users %}
+        <input type="checkbox" name="members" value="{{user.id}}" >@{{user.first_name}}
+        <button type="submit">create</button>
+        {% endfor %}
+    </form>
+</body>
+</html>

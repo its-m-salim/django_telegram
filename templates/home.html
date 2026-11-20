@@ -21,14 +21,22 @@
 
         {% for item in items %}
         <a class="chat-item" href="{% url 'chat' item.chat.id %}">
-            {% include "avatar.html" with person=item.other size="small" %}
+            {% if item.chat.type == "private" %}
+                {% include "avatar.html" with person=item.other size="small" %}
+                <div class="chat-info">
+                    <div class="chat-top">
+                        {% if item.other %}
+                        <p class="chat-name">{{ item.other.first_name }}</p>
+                        {% else %}
+                        <p class="chat-name chat-name-deleted">Удалённый аккаунт</p>
+                        {% endif %}
+        {% else %}
+        {% include "avatar.html" with person=item.chat size="small" %}
             <div class="chat-info">
                 <div class="chat-top">
-                    {% if item.other %}
-                    <p class="chat-name">{{ item.other.first_name }}</p>
-                    {% else %}
-                    <p class="chat-name chat-name-deleted">Удалённый аккаунт</p>
-                    {% endif %}
+                    <p class="chat-name">{{ item.chat.title }}</p>
+        {% endif %}
+                    
 
                     {% if item.last_message %}
                     <span class="chat-time">
@@ -51,5 +59,6 @@
     </div>
 
     <a class="add-chat-button" href="{% url 'users' %}">+</a>
+    <a href="{% url 'group_form' %}">group</a>
 </body>
 </html>

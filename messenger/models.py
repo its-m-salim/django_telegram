@@ -24,13 +24,35 @@ class User(AbstractUser):
     bio = models.TextField(blank=True)
     avatar_color = models.CharField(max_length=10)
 
-
-
 class Chat(models.Model):
-    user1 = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, related_name="chats1")
-    user2 = models.ForeignKey(User, on_delete=models.SET_NULL,null=True, related_name="chats2")
+    TYPES = [
+        ("private", "Личный"),
+        ("group", "Группа"),
+        ("channel", "Канал"),
+        ("saved", "Избранное"),
+    ]
+    type = models.CharField(max_length=10, choices=TYPES, default="private")
+    title = models.CharField(max_length=100, blank=True)
+    description = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to="chat_avatars", null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_chats")
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+
+
+
+class ChatMember(models.Model):
+    ROLES = [("owner", "Владелец"), ("admin", "Админ"), ("member", "Участник")]
+
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="members")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="memberships")
+    role = models.CharField(max_length=10, choices=ROLES, default="member")
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("chat", "user")
+
+
 
 class Message(models.Model):
     file_types = [
@@ -48,4 +70,6 @@ class Message(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+
+
 
