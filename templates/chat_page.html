@@ -38,8 +38,9 @@
             {% include "avatar.html" with person=chat size="small" %}
             <div class="chat-user-info">
                 <p class="chat-user-name">{{ chat.title }}</p>
+                {% load pytils_numeral %}
                 <p class="chat-user-status">
-                    {{chat.members.count}}
+                    {{ chat.members.count|get_plural:"участник,участника,участников" }}
                 </p>
             </div>
         </a>
@@ -70,11 +71,22 @@
                             Ваш браузер не поддерживает видео.
                         </video>
                         {% else %}
-                        <a class="message-file" href="{{ message.file.url }}" download>📎 {{ message.file.name|cut:"files/" }}</a>
-                        {% endif %}
+                            <a class="message-file" href="{{ message.file.url }}" download>
+                                📎 {{ message.file.name|cut:"files/" }}
+                                <span class="message-file-size">{{ message.file.size|filesizeformat }}</span>
+                            </a>                        
                     {% endif %}
+                {% endif %}
 
                     {% if message.text %}
+                    <p class="message-time" >
+                        {% if chat.type == "group" %}
+                        <a {% if message.sender == request.user %} href="{% url 'profile' %}" {% else %} href="{% url 'user_profile' message.sender.id %}" {% endif %}>
+                            {{message.sender.first_name}}
+                        </a>
+                        {% endif %}
+                    </p>
+
                     <p class="message-text">{{ message.text }}</p>
                     {% endif %}
 

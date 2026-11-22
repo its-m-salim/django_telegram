@@ -4,8 +4,8 @@
         <img class="avatar-image" src="{{ person.avatar.url }}" alt="">
     </div>
     {% else %}
-    <div class="avatar avatar-{{ size }} avatar-letter" style="background-color: {{ person.avatar_color }}">
-        {{ person.first_name|default:person.username|first|upper }}
+    <div class="avatar avatar-{{ size }} avatar-letter" style="style=background-color: {{ person.avatar_color|default:'#2a3f6b' }}">
+        {{ person.first_name|default:person.username|default:person.title|first|upper }}    
     </div>
     {% endif %}
 {% else %}
