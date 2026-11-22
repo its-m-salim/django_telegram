@@ -80,7 +80,7 @@
 
                     {% if message.text %}
                     <p class="message-time" >
-                        {% if chat.type == "group" %}
+                        {% if chat.type == "group" and message.sender %}
                         <a {% if message.sender == request.user %} href="{% url 'profile' %}" {% else %} href="{% url 'user_profile' message.sender.id %}" {% endif %}>
                             {{message.sender.first_name}}
                         </a>

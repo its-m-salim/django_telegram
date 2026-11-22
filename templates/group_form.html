@@ -17,8 +17,8 @@
         <input type="file" name="avatar">
         {% for user in users %}
         <input type="checkbox" name="members" value="{{user.id}}" >@{{user.first_name}}
-        <button type="submit">create</button>
         {% endfor %}
+        <button type="submit">create</button>
     </form>
 </body>
 </html>

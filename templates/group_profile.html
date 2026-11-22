@@ -26,16 +26,30 @@
         <div class="member-list">
             <p class="user-card-label">Участники</p>
             {% for member in members %}
-            <a class="member-item" href="{% url 'user_profile' member.user.id %}">
-                {% include "avatar.html" with person=member.user size="small" %}
-                <div class="member-info">
-                    <p class="member-name">{{ member.user.first_name }}</p>
-                    <p class="member-username">@{{ member.user.username }}</p>
+                <div class="member-item">
+                    <a class="member-link" href="{% url 'user_profile' member.user.id %}">
+                        {% include "avatar.html" with person=member.user size="small" %}
+                        <div class="member-info">
+                            <p class="member-name">{{ member.user.first_name }}</p>
+                            <p class="member-username">@{{ member.user.username }}</p>
+                        </div>
+                    </a>
+                
+                    {% if member.role == "owner" %}<span class="member-role">владелец</span>{% endif %}
+                
+                    {% if member.removable %}
+                    <form method="POST" action="{% url 'remove_member' chat.id member.user.id %}">
+                        {% csrf_token %}
+                        <button type="submit">Удалить</button>
+                    </form>
+                    {% endif %}
                 </div>
-                {% if member.role == "owner" %}<span class="member-role">владелец</span>{% endif %}
-            </a>
             {% endfor %}
         </div>
+        {% if can.add_member %}
+            <a class="write-button" href="{% url 'add_members' chat.id %}">Добавить участника</a>
+        {% endif %}
+        
     </div>
 </body>
 </html>

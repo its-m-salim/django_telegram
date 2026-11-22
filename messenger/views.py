@@ -237,6 +237,8 @@ def delete_message(request, message_id):
 @login_required
 def user_profile(request,  id):
     person = get_object_or_404(User, pk=id)
+    if person == request.user:
+        return redirect("profile")
     return render(request, "user_profile.html", {"person": person})
 
 
@@ -245,14 +247,16 @@ def user_profile(request,  id):
 @login_required
 def create_group(request):
     if request.method == 'POST':
+        users = User.objects.exclude(pk = request.user.id)
+
         data = request.POST
         members = request.POST.getlist("members")
 
         if not data.get('title').strip():
-            return render("group_form", {"error": "Имя группы не может быть пустым."})
+            return render(request, "group_form", {"error": "Имя группы не может быть пустым.", "users":users})
 
         if not members or len(members) < 1:
-            return render("group_form", {"error": "Нужно выбрать хотья бы одного участника"}) 
+            return render(request, "group_form", {"error": "Нужно выбрать хотья бы одного участника", "users": users}) 
 
 
         chat = Chat.objects.create(
@@ -277,17 +281,141 @@ def create_group(request):
             )
         return redirect("chat", id=chat.id)
 
-    users = User.objects.exclude(pk = request.user.id)
     return render(request, "group_form.html", {"users": users})
 
+
+
+def get_role(chat, user):
+    member = chat.members.filter(user = user).first()
+    return member.role if member else None
+
+def get_member(chat, user):
+    return chat.members.filter(user=user).first()
 
 
 
 @login_required
 def group_profile(request, id):
     chat = get_object_or_404(Chat, pk = id, type="group")
-    if not chat.members.filter(user = request.user).exists():
-        return redirect("chat_page", chat.id)
+    me = get_member(chat, request.user)
+    members = list(chat.members.select_related("user"))
 
-    members = chat.members.select_related("user")
-    return render(request, "group_profile.html", {"chat": chat,"members": members})
+    if not me:
+        return redirect("chat", id = chat.id)
+
+    for m in members:
+        m.removable = me.can_remove(m)
+
+    context = {
+        "chat": chat,
+        "members": members,
+        "can": me.all_permissions()
+    }
+
+    return render(request, "group_profile.html", context)
+
+
+
+@login_required
+def leave_group(request, id):
+    group = get_object_or_404(Chat, pk = id, type = "group")
+    member = ChatMember.objects.filter(user = request.user, chat = group)
+    if request.method == "POST":
+        member.delete()
+        return redirect("home")
+
+    return redirect("group_profile", id = group.id)
+
+
+
+
+
+
+
+
+
+@login_required
+def add_members(request, id):
+    group = get_object_or_404(Chat,pk =id, type = "group")
+    me = get_member(group, request.user)
+    print(me, me.can("add_member"))
+    if not me or not me.can("add_member"):
+        return redirect("group_profile", id = group.id)
+
+
+    new_users = User.objects.exclude(memberships__chat = group)
+    if request.method == "POST":
+        users = request.POST.getlist("users")
+
+        for user in users:
+            ChatMember.objects.get_or_create(
+                chat = group,
+                user = get_object_or_404(User, pk = user)
+            )
+        
+        return redirect("group_profile", id = group.id)
+
+    return render(request, "add_members.html", {"chat": group, "users": new_users})
+
+
+
+
+@login_required
+def remove_member(request, chat_id, member_id):
+
+    member = get_object_or_404(User, pk = member_id)
+    group = get_object_or_404(Chat, pk = chat_id, type = "group")
+    target = get_object_or_404(ChatMember, chat = group, user = member )
+    me = get_member(group, request.user)
+
+    if not me or not me.can_remove(target):
+        return redirect("group_profile", id = group.id)
+    
+    if request.method == "POST":
+        target.delete()
+        return redirect("group_profile", id = group.id)
+
+    return redirect("group_profile", id = group.id)
+
+
+@login_required
+def edit_group(request, id):
+    group = get_object_or_404(Chat, pk = id)
+    me = get_member(group, request.user)
+
+    if not me or not me.can("edit_group"):
+        return redirect("group_profile", id = group.id)
+    
+    if request.method == "POST":
+        data = request.POST
+
+        group.title = data['title']
+        group.description = data['description']
+        if request.FILES.get("avatar"):
+            group.avatar = request.FILES["avatar"]
+        group.save()
+
+        return redirect("group_profile", id = group.id)
+
+    return render(request, "edit_group.html", {"group":group})
+
+
+@login_required
+def change_roles(request, chat_id, member_id):
+    group = get_object_or_404(Chat, pk =chat_id, type = "group")
+    me = get_member(group, request.user)
+    member = get_object_or_404(User, pk = member_id)
+    target = get_object_or_404(ChatMember, chat = group, user = member )
+
+    if not me or not me.can("set_admin"):
+        return redirect("group_profile", id = group.id)
+
+    if request.method == "POST":
+        if target.role == "dmin":
+            target.role = "member"
+        elif target.role == "member":
+            target.role = "admin"
+        target.save()
+        
+        return redirect("group_profile", id = group.id)
+    return render(request, "change_roles")

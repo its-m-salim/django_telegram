@@ -44,6 +44,19 @@ class Chat(models.Model):
 class ChatMember(models.Model):
     ROLES = [("owner", "Владелец"), ("admin", "Админ"), ("member", "Участник")]
 
+    PERMISSIONS = {
+        "add_member":         ("owner", "admin"),
+        "remove_member":      ("owner", "admin"),
+        "edit_group":         ("owner", "admin"),
+        "delete_any_message": ("owner", "admin"),
+        "set_admin":          ("owner",),
+        "transfer_owner":     ("owner",),
+        "delete_group":       ("owner",),
+    }
+
+    RANK = {"owner": 3, "admin": 2, "member": 1}
+
+
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name="members")
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="memberships")
     role = models.CharField(max_length=10, choices=ROLES, default="member")
@@ -51,6 +64,25 @@ class ChatMember(models.Model):
 
     class Meta:
         unique_together = ("chat", "user")
+
+    def can(self, action):
+        return self.role in self.PERMISSIONS.get(action, ())
+
+
+    def can_remove(self, target):
+        return (
+            self.RANK[self.role] > self.RANK[target.role]
+            and self.can("remove_member")
+            and self.pk != target.pk
+        )
+
+
+    def all_permissions(self):
+        return {action: self.can(action) for action in self.PERMISSIONS}
+
+
+
+
 
 
 
