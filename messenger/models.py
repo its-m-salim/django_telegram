@@ -52,6 +52,7 @@ class ChatMember(models.Model):
         "set_admin":          ("owner",),
         "transfer_owner":     ("owner",),
         "delete_group":       ("owner",),
+        "see_deleter":        ("owner",),
     }
 
     RANK = {"owner": 3, "admin": 2, "member": 1}
@@ -95,12 +96,13 @@ class Message(models.Model):
     
     is_read = models.BooleanField(default=False)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
-    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="sender")
     text = models.TextField(null=True, blank=True)
     file = models.FileField(upload_to="files/", blank=True)
     file_type = models.CharField(max_length=20, choices=file_types, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="deleted_messages")
     is_active = models.BooleanField(default=True)
 
 

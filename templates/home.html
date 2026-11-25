@@ -45,7 +45,7 @@
                     {% endif %}
                 </div>
 
-                {% if item.last_message %}
+                {% if item.last_message.sender_id == request.user.id %}
                 <p class="chat-last">{% if item.last_message.sender == request.user %}<span class="chat-last-you">Вы:</span> {% endif %}{{ item.last_message.text|truncatechars:45 }}</p>
                 {% endif %}
             </div>

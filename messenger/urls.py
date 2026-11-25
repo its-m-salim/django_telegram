@@ -18,7 +18,9 @@ urlpatterns = [
     path("chat_profile/<int:id>/", group_profile, name="group_profile" ),
     path("leave_group/<int:id>/", leave_group, name="leave_group"),
     path("add_members/<int:id>/", add_members, name="add_members"),
-    path("remove_member/<int:chat_id>/<int:member_id>/", remove_member, name="remove_member")
+    path("remove_member/<int:chat_id>/<int:member_id>/", remove_member, name="remove_member"),
+    path("change_roles/<int:chat_id>/<int:member_id>/", change_roles, name="change_roles"),
+    path("edit_group/<int:id>/", edit_group, name="edit_group")
 ]
 
 

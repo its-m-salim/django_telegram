@@ -3,34 +3,50 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from .models import *
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils import timezone
-
+from django.db import connection
 AVATAR_COLORS = ["#e17076", "#faa774", "#a695e7", "#7bc862", "#6ec9cb", "#65aadd", "#ee7aae"]
+
+
+
 
 
 @login_required
 def home_page(request):
-    chats = Chat.objects.filter(members__user=request.user).order_by("-created_at")
+    chats = (
+        Chat.objects.filter(members__user=request.user)
+        .prefetch_related(
+            Prefetch("members", queryset=ChatMember.objects.select_related("user"))
+        )
+        .order_by("-created_at")
+    )
+
+    # последнее сообщение каждого чата одним запросом (PostgreSQL)
+    last_messages = {
+        m.chat_id: m
+        for m in Message.objects.filter(chat__in=chats, is_active=True)
+        .exclude(text__isnull=True).exclude(text="")
+        .order_by("chat_id", "-created_at")
+        .distinct("chat_id")
+    }
 
     items = []
     for chat in chats:
-        other_member = chat.members.exclude(user=request.user).select_related("user").first()
-        if other_member and chat.type == "private":
-            other = other_member.user
-        else:
-            other = None
-
-        last_message = Message.objects.filter(
-            chat=chat, is_active=True
-        ).exclude(text__isnull=True).exclude(text="").order_by("-created_at").first()
-
-        items.append({"chat": chat, "other": other, "last_message": last_message})
-
+        other = None
+        if chat.type == "private":
+            other = next(
+                (m.user for m in chat.members.all() if m.user_id != request.user.id),
+                None,
+            )
+        items.append({
+            "chat": chat,
+            "other": other,
+            "last_message": last_messages.get(chat.id),
+        })
+    print(len(connection.queries))
     return render(request, "home.html", {"items": items})
-
-
-
+    
 
 
 
@@ -129,15 +145,21 @@ def chat_page(request, id):
     if not chat.members.filter(user=request.user).exists():
         return redirect("home")
 
-    chat_messages = Message.objects.filter(chat=chat).order_by("created_at")
+    chat_messages = Message.objects.filter(chat=chat).select_related("sender", "deleted_by").order_by("created_at")
     
     other_member = chat.members.exclude(user=request.user).select_related("user").first()
     other = other_member.user if other_member else None
 
+    
+    me = get_member(chat, request.user)
+    
+
     context = {
         "chat" : chat,
         "chat_messages": chat_messages,
-        "other" : other
+        "other" : other,
+        "can_delete_any": bool(me and me.can("delete_any_message")),
+        "can_see_deleter": bool(me and me.can("see_deleter"))
     }
 
     if request.method == 'POST':
@@ -166,6 +188,8 @@ def chat_page(request, id):
                 file_type = file_type 
             )
         return redirect("chat", chat.id)
+
+    print(len(connection.queries))
 
     return render(request, "chat_page.html", context)
 
@@ -220,14 +244,23 @@ def edit_message(request, message_id):
 @login_required
 def delete_message(request, message_id):
     message = get_object_or_404(
-        Message,
+        Message.objects.select_related("chat"),
         pk=message_id,
-        sender=request.user,
         is_active=True
     )
 
+    me = get_member(message.chat, request.user)
+
+    if not me:
+        return redirect("home")
+
+    is_author = message.sender_id == request.user.id
+    if not (is_author or me.can("delete_any_message")):
+        return redirect("chat", id = message.chat_id)
+
     if request.method == "POST":
         message.is_active = False
+        message.deleted_by = request.user
         message.save()
 
     return redirect("chat", id=message.chat.id)
@@ -316,23 +349,6 @@ def group_profile(request, id):
 
 
 
-@login_required
-def leave_group(request, id):
-    group = get_object_or_404(Chat, pk = id, type = "group")
-    member = ChatMember.objects.filter(user = request.user, chat = group)
-    if request.method == "POST":
-        member.delete()
-        return redirect("home")
-
-    return redirect("group_profile", id = group.id)
-
-
-
-
-
-
-
-
 
 @login_required
 def add_members(request, id):
@@ -380,7 +396,7 @@ def remove_member(request, chat_id, member_id):
 
 @login_required
 def edit_group(request, id):
-    group = get_object_or_404(Chat, pk = id)
+    group = get_object_or_404(Chat, pk = id, type = "group")
     me = get_member(group, request.user)
 
     if not me or not me.can("edit_group"):
@@ -388,7 +404,9 @@ def edit_group(request, id):
     
     if request.method == "POST":
         data = request.POST
-
+        title = data.get("title", "").strip()
+        if not title:
+            return render(request, "edit_group.html", {"group": group, "error": "Название не может быть пустым"})
         group.title = data['title']
         group.description = data['description']
         if request.FILES.get("avatar"):
@@ -400,9 +418,11 @@ def edit_group(request, id):
     return render(request, "edit_group.html", {"group":group})
 
 
+
+
 @login_required
 def change_roles(request, chat_id, member_id):
-    group = get_object_or_404(Chat, pk =chat_id, type = "group")
+    group = get_object_or_404(Chat, pk = chat_id, type = "group")
     me = get_member(group, request.user)
     member = get_object_or_404(User, pk = member_id)
     target = get_object_or_404(ChatMember, chat = group, user = member )
@@ -411,11 +431,27 @@ def change_roles(request, chat_id, member_id):
         return redirect("group_profile", id = group.id)
 
     if request.method == "POST":
-        if target.role == "dmin":
+        if target.role == "admin":
             target.role = "member"
         elif target.role == "member":
             target.role = "admin"
         target.save()
         
+    return redirect("group_profile", id = group.id)
+
+
+
+
+@login_required
+def leave_group(request, id):
+    group = get_object_or_404(Chat, pk = id, type = "group")
+    me = get_member(group, request.user)
+    print(me.role)
+
+    if me.role == "owner":
         return redirect("group_profile", id = group.id)
-    return render(request, "change_roles")
+
+    if request.method == "POST":
+        me.delete()
+    return redirect("home")
+

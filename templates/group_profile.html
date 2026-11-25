@@ -34,7 +34,7 @@
                             <p class="member-username">@{{ member.user.username }}</p>
                         </div>
                     </a>
-                
+                    {% if member.role == "admin" %}<span class="member-role">админ</span>{% endif %}
                     {% if member.role == "owner" %}<span class="member-role">владелец</span>{% endif %}
                 
                     {% if member.removable %}
@@ -43,12 +43,31 @@
                         <button type="submit">Удалить</button>
                     </form>
                     {% endif %}
+                    {% if can.set_admin and member.role != "owner" and member.user != request.user %}
+                    <form method="POST" action="{% url 'change_roles' chat.id member.user.id %}">
+                        {% csrf_token %}
+                        <button type="submit">
+                        {% if member.role == "admin" %}снять админа{% else %}сделать админом{% endif %}
+                        </button>
+                    </form>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
         {% if can.add_member %}
             <a class="write-button" href="{% url 'add_members' chat.id %}">Добавить участника</a>
         {% endif %}
+        {% if can.edit_group %}
+            <a class="write-button" href="{% url 'edit_group' chat.id %}">Изменить группу</a>
+        {% endif %}
+        {% if me.role == "admin" or me.role == "member" %}
+            <form action="{% url 'leave_group' chat.id %}" method="post">
+            {% csrf_token %}
+                <button type="submit" class="write-button">Покинуть группу</button>
+            </form>
+        {% endif %}
+
+
         
     </div>
 </body>

@@ -97,13 +97,27 @@
                 </div>
 
                 {% if message.sender == request.user %}
-                <a class="message-edit" href="{% url 'edit_message' message.id %}">Изменить</a>
+                    <a class="message-edit" href="{% url 'edit_message' message.id %}">Изменить</a>
+                
+                {% elif can_delete_any %}
+                <form action="{% url 'delete_message' message.id %}" method="post">
+                    {% csrf_token %}
+
+                    <button type="submit">удалить</button>
+                </form>
                 {% endif %}
+
 
                 {% else %}
 
                 <div class="message-bubble message-deleted">
-                    <p class="message-text">Сообщение удалено</p>
+                    <p class="message-text">
+                        {% if message.deleted_by_id and message.deleted_by_id != message.sender_id %}
+                            Удалено администратором{% if can_see_deleter %}: {{ message.deleted_by.first_name }}{% endif %}
+                        {% else %}
+                            Сообщение удалено
+                        {% endif %}
+                    </p>
                 </div>
                 {% endif %}
             </div>
